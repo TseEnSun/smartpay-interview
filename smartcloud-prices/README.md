@@ -39,3 +39,42 @@ The API should be running on your port 8080.
 # How to submit
 
 Please push your code to a public repository and submit the link via email. Please do not fork this repository.
+
+
+# Design Note
+
+## Plan
+
+1. Make a note about the design
+2. Integrate with smartcloud first with happy path
+3. Improve and optimization
+
+## Note
+* The API is idempotent,then retrying is a perfectly valid solution.
+* The stratige to save the API call to smartcloud.
+    * Cache the result
+        * What to Store
+            * Result from SmartCloud: Get the supported instances from API, and so do the prices.
+        * When to call
+            * Call by call
+            * Call scheduled
+        * Where to store
+            * Redis
+            * In-Mem: Atomic Reference        
+    * Persist
+        * Since the prices change by time, store the prices is like history log. I will ignore it here.
+* SmartCloud is an external API for this project which will be integrated.
+    * reliability
+        * SmartpayCloud no response or response parse error
+            * retry
+            * return error
+    * maintainability
+        * Follow the fagless-final style, it is easy to replace the interpreter.
+    * scalability
+        * Keep the server stateless, cache in redis, presist in DB if necessary
+
+* What if
+    * Peak request
+        * Lock the smartpay API call
+        * rate limit the endpoint
+    * Hit the requets limit
