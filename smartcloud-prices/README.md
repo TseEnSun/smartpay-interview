@@ -57,7 +57,9 @@ Please push your code to a public repository and submit the link via email. Plea
             * Result from SmartCloud: Get the supported instances from API, and so do the prices.
         * When to call
             * Call by call
+                * Call API when cache expired (TTL: 90 seconds) 
             * Call scheduled
+                * Call API every 90 seconds (86400/90 = 960 < 1000)
         * Where to store
             * Redis
             * In-Mem: Atomic Reference        

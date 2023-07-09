@@ -1,32 +1,36 @@
 package prices
 
+import cats.syntax.all._
 import cats.effect._
 import com.comcast.ip4s._
 import fs2.Stream
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.Logger
+import org.typelevel.log4cats.SelfAwareStructuredLogger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import prices.config.Config
-import prices.routes.InstanceKindRoutes
-import prices.services.SmartcloudInstanceKindService
 import prices.resources.AppResources
+import prices.client.SmartCloudClient
+import prices.routes.InstanceKindRoutes
+import prices.routes.InstancePriceRoutes
+import prices.services.SmartcloudInstanceKindService
+import prices.services.SmartcloudInstancePriceService
+
 
 object Server {
 
   def serve(config: Config, resources: AppResources[IO]): Stream[IO, ExitCode] = {
 
-    val instanceKindService = SmartcloudInstanceKindService.make[IO](
-      SmartcloudInstanceKindService.Config(
-        config.smartcloud.baseUri,
-        config.smartcloud.token
-      ),
-      resources.httpClient
-    )
-
+    implicit val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
     // val instanceKindService = SmartcloudInstanceKindService.dummy[IO]
 
+    val smartcloudClient = SmartCloudClient.make[IO](config.smartcloud, resources.httpClient)
+    val instanceKindService = SmartcloudInstanceKindService.make[IO](smartcloudClient)
+    val instancePriceService = SmartcloudInstancePriceService.make[IO](smartcloudClient)
+
     val httpApp = (
-      InstanceKindRoutes[IO](instanceKindService).routes
+      InstanceKindRoutes[IO](instanceKindService).routes <+> InstancePriceRoutes[IO](instancePriceService).routes
     ).orNotFound
 
     Stream

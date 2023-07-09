@@ -9,6 +9,7 @@ object Dependencies {
     val circe      = "0.15.0-M1"
     val logback    = "1.2.6"
     val pureConfig = "0.16.0"
+    val log4cats   = "2.6.0"
 
     // Test
     val munit = "0.7.29"
@@ -21,6 +22,7 @@ object Dependencies {
   object L { // Libraries
     // Scala
     def http4s(module: String): ModuleID = "org.http4s" %% s"http4s-$module" % V.http4s
+    def log4cats(module: String): ModuleID = "org.typelevel" %% s"log4cats-$module" % V.log4cats
 
     val circe      = "io.circe"              %% "circe-generic"   % V.circe
     val logback    = "ch.qos.logback"         % "logback-classic" % V.logback
