@@ -10,6 +10,7 @@ object Dependencies {
     val logback    = "1.2.6"
     val pureConfig = "0.16.0"
     val log4cats   = "2.6.0"
+    val redis4cats = "1.4.3"
 
     // Test
     val munit = "0.7.29"
@@ -23,10 +24,11 @@ object Dependencies {
     // Scala
     def http4s(module: String): ModuleID = "org.http4s" %% s"http4s-$module" % V.http4s
     def log4cats(module: String): ModuleID = "org.typelevel" %% s"log4cats-$module" % V.log4cats
+    def redis4cats(module: String): ModuleID = "dev.profunktor" %% s"redis4cats-$module" % V.redis4cats
+    def circe(module: String): ModuleID = "io.circe" %% s"circe-$module" % V.circe
 
-    val circe      = "io.circe"              %% "circe-generic"   % V.circe
-    val logback    = "ch.qos.logback"         % "logback-classic" % V.logback
-    val pureConfig = "com.github.pureconfig" %% "pureconfig"      % V.pureConfig
+    val logback    = "ch.qos.logback"         % "logback-classic"     % V.logback
+    val pureConfig = "com.github.pureconfig" %% "pureconfig"          % V.pureConfig
   }
 
   object T { // Test dependencies

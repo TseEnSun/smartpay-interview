@@ -1,10 +1,10 @@
-package prices.client
+package prices.apiClient
 
 import io.circe._
 import io.circe.generic.semiauto._
 
 
-object SmartCloudProtocal {
+object SmartCloudProtocol {
 
   final case class SmartCloudPrice(
     kind: String,

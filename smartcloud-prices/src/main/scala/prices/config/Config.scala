@@ -7,7 +7,8 @@ import pureconfig.generic.auto._
 
 case class Config(
     app: Config.AppConfig,
-    smartcloud: Config.SmartcloudConfig
+    smartcloud: Config.SmartCloudConfig,
+    redis: Config.RedisConfig
 )
 
 object Config {
@@ -17,9 +18,14 @@ object Config {
       port: Int
   )
 
-  case class SmartcloudConfig(
+  case class SmartCloudConfig(
       baseUri: String,
       token: String
+  )
+
+  case class RedisConfig(
+      host: String,
+      port: Int
   )
 
   def load[F[_]: Sync]: F[Config] =

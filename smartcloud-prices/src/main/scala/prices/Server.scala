@@ -2,35 +2,38 @@ package prices
 
 import cats.syntax.all._
 import cats.effect._
+import cats.effect.std.Semaphore
 import com.comcast.ip4s._
 import fs2.Stream
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.Logger
-import org.typelevel.log4cats.SelfAwareStructuredLogger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import prices.config.Config
 import prices.resources.AppResources
-import prices.client.SmartCloudClient
+import prices.apiClient.SmartCloudClient
 import prices.routes.InstanceKindRoutes
 import prices.routes.InstancePriceRoutes
-import prices.services.SmartcloudInstanceKindService
-import prices.services.SmartcloudInstancePriceService
+import prices.services.SmartCloudInstanceKindService
+import prices.services.SmartCloudInstancePriceService
+import prices.services.RedisCacheService
+import prices.programs.CachedInstancePriceProgram
 
 
 object Server {
 
-  def serve(config: Config, resources: AppResources[IO]): Stream[IO, ExitCode] = {
+  def serve(config: Config, resources: AppResources[IO], semaphore: Semaphore[IO]): Stream[IO, ExitCode] = {
 
-    implicit val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
-    // val instanceKindService = SmartcloudInstanceKindService.dummy[IO]
+    // val instanceKindService = SmartCloudInstanceKindService.dummy[IO]
 
-    val smartcloudClient = SmartCloudClient.make[IO](config.smartcloud, resources.httpClient)
-    val instanceKindService = SmartcloudInstanceKindService.make[IO](smartcloudClient)
-    val instancePriceService = SmartcloudInstancePriceService.make[IO](smartcloudClient)
+    val smartCloudClient = SmartCloudClient.make[IO](config.smartcloud, resources.httpClient)
+    val instanceKindService = SmartCloudInstanceKindService.make[IO](smartCloudClient)
+    val instancePriceService = SmartCloudInstancePriceService.make[IO](smartCloudClient)
+    val cacheService = RedisCacheService.make[IO](resources.redis)
+
+    val instancePriceProgram = CachedInstancePriceProgram.make[IO](instancePriceService, cacheService, semaphore)
 
     val httpApp = (
-      InstanceKindRoutes[IO](instanceKindService).routes <+> InstancePriceRoutes[IO](instancePriceService).routes
+      InstanceKindRoutes[IO](instanceKindService).routes <+> InstancePriceRoutes[IO](instancePriceProgram).routes
     ).orNotFound
 
     Stream
@@ -43,6 +46,6 @@ object Server {
           .build
           .useForever
       )
-  }
 
+  }
 }
