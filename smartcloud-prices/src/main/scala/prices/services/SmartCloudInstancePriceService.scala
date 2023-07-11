@@ -4,6 +4,7 @@ import cats.implicits._
 import cats.effect._
 
 import prices.data._
+import prices.services.errors._
 import prices.apiClient.SmartCloudClient
 
 

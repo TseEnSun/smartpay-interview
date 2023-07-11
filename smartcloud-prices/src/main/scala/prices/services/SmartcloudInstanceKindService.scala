@@ -3,6 +3,7 @@ package prices.services
 import cats.effect._
 import cats.implicits._
 import prices.data._
+import prices.services.errors._
 import prices.apiClient.SmartCloudClient
 
 object SmartCloudInstanceKindService {

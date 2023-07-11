@@ -3,7 +3,7 @@ package prices.programs
 import scala.util.control.NoStackTrace
 
 import prices.data._
-import prices.services.{Exception => ServiceException}
+import prices.services.errors.{Exception => ServiceException}
 
 object InstancePriceProgram {
 

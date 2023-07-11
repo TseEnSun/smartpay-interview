@@ -11,7 +11,7 @@ final case class InstancePriceResponse(
 )
 
 final case class InstanceKindNotFoundResponse(
-    kind: InstanceKind
+  kind: InstanceKind
 )
 
 object InstancePriceResponse {

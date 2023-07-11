@@ -10,9 +10,9 @@ import prices.programs.InstancePriceProgram
 import prices.programs.InstancePriceProgram.{Exception => ProgramException}
 import prices.routes.protocol._
 import prices.routes.protocol.InstancePriceResponse._
-import prices.routes.protocol.InstanceKindNotFoundResponse._
+//import prices.routes.protocol.InstanceKindNotFoundResponse._
 
-// TODO: Replace service with program
+
 final case class InstancePriceRoutes[F[_]: Sync](instancePriceProgram: InstancePriceProgram[F]) extends Http4sDsl[F] {
   
     val prefix = "/prices"

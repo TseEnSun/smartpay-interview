@@ -1,10 +1,10 @@
-package prices
+package prices.services
 
 import prices.apiClient.errors.{Exception => APIException}
 
 import scala.util.control.NoStackTrace
 
-package object services {
+object errors {
 
   sealed trait Exception extends NoStackTrace
 
