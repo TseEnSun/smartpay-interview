@@ -4,10 +4,10 @@ services:
     image: smartpayco/smartcloud:latest
     ports:
       - "9999:9999"
-  # Redis:
-  #   restart: always
-  #   image: redis:6.2.0
-  #   ports:
-  #     - "6379:6379"
-  #   environment:
-  #     - DEBUG=false
+  Redis:
+    restart: always
+    image: redis:latest
+    ports:
+     - "6379:6379"
+    environment:
+     - DEBUG=false

@@ -20,7 +20,7 @@ object Main extends IOApp.Simple {
     resources <- AppResources.make[IO](config)
   } yield (config, semaphore, resources)
   ).use { case (config, semaphore, resources) =>
-    Server.serve(config, resources, semaphore).compile.drain
+    Server.serve[IO](config, resources, semaphore).compile.drain
   }
 
 }

@@ -6,8 +6,8 @@ import cats.effect.std.Semaphore
 import com.comcast.ip4s._
 import fs2.Stream
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.middleware.Logger
-
+import org.http4s.server.middleware.{Logger => MiddlewareLogger}
+import org.typelevel.log4cats.Logger
 import prices.config.Config
 import prices.resources.AppResources
 import prices.apiClient.SmartCloudClient
@@ -21,28 +21,33 @@ import prices.programs.CachedInstancePriceProgram
 
 object Server {
 
-  def serve(config: Config, resources: AppResources[IO], semaphore: Semaphore[IO]): Stream[IO, ExitCode] = {
+  def serve[F[_]: Async: Logger](
+    config: Config,
+    resources: AppResources[F],
+    semaphore: Semaphore[F]
+  ): Stream[F, ExitCode] = {
 
-    // val instanceKindService = SmartCloudInstanceKindService.dummy[IO]
+    // val instanceKindService = SmartCloudInstanceKindService.dummy[F]
 
-    val smartCloudClient = SmartCloudClient.make[IO](config.smartcloud, resources.httpClient)
-    val instanceKindService = SmartCloudInstanceKindService.make[IO](smartCloudClient)
-    val instancePriceService = SmartCloudInstancePriceService.make[IO](smartCloudClient)
-    val cacheService = RedisCacheService.make[IO](resources.redis)
+    val smartCloudClient = SmartCloudClient.make[F](config.smartcloud, resources.httpClient)
+    val instanceKindService = SmartCloudInstanceKindService.make[F](smartCloudClient)
+    val instancePriceService = SmartCloudInstancePriceService.make[F](smartCloudClient)
+    val cacheService = RedisCacheService.make[F](resources.redis)
 
-    val instancePriceProgram = CachedInstancePriceProgram.make[IO](instancePriceService, cacheService, semaphore)
+    val instancePriceProgram =
+      CachedInstancePriceProgram.make[F](instancePriceService, cacheService, semaphore, config.redis)
 
     val httpApp = (
-      InstanceKindRoutes[IO](instanceKindService).routes <+> InstancePriceRoutes[IO](instancePriceProgram).routes
+      InstanceKindRoutes[F](instanceKindService).routes <+> InstancePriceRoutes[F](instancePriceProgram).routes
     ).orNotFound
 
     Stream
       .eval(
         EmberServerBuilder
-          .default[IO]
+          .default[F]
           .withHost(Host.fromString(config.app.host).get)
           .withPort(Port.fromInt(config.app.port).get)
-          .withHttpApp(Logger.httpApp(true, true)(httpApp))
+          .withHttpApp(MiddlewareLogger.httpApp(logHeaders = true, logBody = true)(httpApp))
           .build
           .useForever
       )

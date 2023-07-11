@@ -1,5 +1,7 @@
 package prices.config
 
+import scala.concurrent.duration.FiniteDuration
+
 import cats.effect.kernel.Sync
 
 import pureconfig.ConfigSource
@@ -14,18 +16,19 @@ case class Config(
 object Config {
 
   case class AppConfig(
-      host: String,
-      port: Int
+    host: String,
+    port: Int
   )
 
   case class SmartCloudConfig(
-      baseUri: String,
-      token: String
+    baseUri: String,
+    token: String
   )
 
   case class RedisConfig(
-      host: String,
-      port: Int
+    host: String,
+    port: Int,
+    expiredTime: FiniteDuration
   )
 
   def load[F[_]: Sync]: F[Config] =
