@@ -22,7 +22,8 @@ object Config {
 
   case class SmartCloudConfig(
     baseUri: String,
-    token: String
+    token: String,
+    maxRetry: Int
   )
 
   case class RedisConfig(

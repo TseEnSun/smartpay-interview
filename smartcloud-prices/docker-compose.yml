@@ -1,5 +1,5 @@
 services:
-  OneFrame:
+  Smartcloud:
     restart: always
     image: smartpayco/smartcloud:latest
     ports:
