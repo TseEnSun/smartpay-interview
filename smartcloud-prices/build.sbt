@@ -18,6 +18,8 @@ lazy val root = (project in file("."))
       L.redis4cats("effects"),
       L.redis4cats("log4cats"),
       T.munit,
+      T.munitCatsEffect,
+      T.log4catsNoOp,
       C.betterMonadicFor,
       C.kindProjector
     ),
